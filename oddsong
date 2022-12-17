@@ -1,0 +1,125 @@
+const int pressurePin = A0; 
+const int potPin1 = A1;    
+const int potPin2 = A2;  
+const int potPin3 = A3; 
+const int lightSensorPin = A4; 
+
+const int ledPin0 = 6;
+const int ledPin1 = 9;
+const int ledPin2 = 10;
+const int ledPin3 = 11;
+
+const int sensorMax = 1023;
+const int sensorMin = 0;
+int lightSensorValueMax = 0;
+int lightSensorValueMin = 1023;
+
+int pressureValue = 0;
+int potValue1 = 0;
+int potValue2 = 0;
+int potValue3 = 0;
+int lightSensorValue;
+
+int button1 = 0;
+int toggle1 = 0;
+int buttonIsPressed1 = 0;
+int button2 = 0;
+int toggle2 = 0;
+int buttonIsPressed2 = 0;
+int button3 = 0;
+int toggle3 = 0;
+
+int count = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+  
+   while (millis() < 1000) {
+    lightSensorValue = analogRead(lightSensorPin);
+    if (lightSensorValue > lightSensorValueMax) {
+      lightSensorValueMax = lightSensorValue;
+    }
+    if (lightSensorValue < lightSensorValueMin) {
+      lightSensorValueMin = lightSensorValue;
+    }
+  }
+}
+
+void loop() {
+  
+  count = count + 1;
+
+
+  pressureValue = analogRead(pressurePin);
+  potValue1 = analogRead(potPin1);
+  potValue2 = analogRead(potPin2);
+  potValue3 = analogRead(potPin3);
+  lightSensorValue = analogRead(lightSensorPin);
+    lightSensorValue = constrain(lightSensorValue, lightSensorValueMin, lightSensorValueMax);
+
+  button1 = digitalRead(2);
+  button2 = digitalRead(3);
+
+  pressureValue = map(pressureValue, sensorMin, sensorMax, 0, 1023);
+  potValue1 = map(potValue1, sensorMin, sensorMax, 1023, 0);
+  potValue2 = map(potValue2, sensorMin, sensorMax, 1023, 0);
+  potValue3 = map(potValue3, sensorMin, sensorMax, 1023, 0);
+  lightSensorValue = map(lightSensorValue, lightSensorValueMin, lightSensorValueMax, 1023, 0);
+
+  Serial.print(pressureValue); 
+  Serial.write(32);
+  Serial.print(potValue1);
+  Serial.write(32);
+  Serial.print(potValue2);
+  Serial.write(32);
+  Serial.print(potValue3);
+  Serial.write(32);
+  analogWrite(ledPin0, pressureValue/4);
+  analogWrite(ledPin1, potValue1/4);
+  analogWrite(ledPin2, potValue2/4);
+  analogWrite(ledPin3, potValue3/4);
+
+  buttonFunction();
+
+
+  Serial.print(toggle1);
+  Serial.write(32);
+  Serial.print(toggle2);
+  Serial.write(32);
+  Serial.print(lightSensorValue);
+  Serial.write(32);
+  Serial.println(count);
+  delay(100);
+}
+
+void buttonFunction() {
+   if (button1 > 0) {
+    buttonIsPressed1 = true;
+  }
+  if (button2 > 0) {
+    buttonIsPressed2 = true;
+  }
+
+  if (toggle2 == 3 && buttonIsPressed2 == true && button2 == 0) {
+    toggle2 = 0;
+    buttonIsPressed2 = false;
+  } else if (toggle2 == 2 && buttonIsPressed2 == true && button2 == 0) {
+    toggle2 = 3;
+    buttonIsPressed2 = false;
+  } else if (toggle2 == 1 && buttonIsPressed2 == true && button2 == 0) {
+    toggle2 = 2;
+    buttonIsPressed2 = false;
+  } else if (buttonIsPressed2 == true && button2 == 0) {
+    toggle2 = 1;
+    buttonIsPressed2 = false;
+  }
+
+  if (toggle1 == 1 && buttonIsPressed1 == true && button1 == 0) {
+    toggle1 = 0;
+    buttonIsPressed1 = false;
+  } else if (buttonIsPressed1 == true && button1 == 0) {
+    toggle1 = 1;
+    buttonIsPressed1 = false;
+  }
+}
